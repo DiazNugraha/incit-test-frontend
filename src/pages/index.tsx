@@ -1,20 +1,87 @@
-import { Inter } from "next/font/google";
-
-const inter = Inter({ subsets: ["latin"] });
+import Button from "@/components/button";
+import TextField from "@/components/text-field";
+import { SignInPayload } from "@/types/registration/registration";
+import { useState } from "react";
 
 export default function Home() {
+  const [email, setEmail] = useState<string>();
+  const [password, setPassword] = useState<string>();
+  const [emailErrMessage, setEmailErrMessage] = useState<string>();
+  const [passwordErrMessage, setPasswordErrMessage] = useState<string>();
+
+  const checkEmail = () => {
+    if (!email) {
+      setEmailErrMessage("Email is required");
+    } else {
+      setEmailErrMessage("");
+    }
+  };
+
+  const checkPassword = () => {
+    if (!password) {
+      setPasswordErrMessage("Password is required");
+    } else {
+      setPasswordErrMessage("");
+    }
+  };
+
+  const signIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    checkEmail();
+    checkPassword();
+
+    const payload: SignInPayload = {
+      email: String(email),
+      password: String(password),
+    };
+
+    console.log(payload);
+  };
+
   return (
     <main
-      className={`relative flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
+      className={`relative flex min-h-screen flex-col items-center justify-between p-24`}
     >
-      <div className="flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <div className=" dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"></div>
-      </div>
+      <div className="bg-slate-200/10 border-[1px] border-white/10 h-[80vh] w-[60vw] p-10 flex justify-center">
+        <form
+          onSubmit={signIn}
+          className="flex justify-center items-center flex-col gap-8 w-[40%]"
+        >
+          <h1 className="text-4xl">Login</h1>
+          <div className="flex flex-col gap-y-4 w-full">
+            <div className="flex flex-col">
+              <TextField
+                label="Email"
+                type="text"
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              {emailErrMessage && (
+                <p className="text-red-500 text-sm">{emailErrMessage}</p>
+              )}
+            </div>
 
-      <div className="bg-slate-200/10 border-[1px] border-white/10 h-[80vh] w-[60vw]"></div>
-
-      <div className="top-0 -left-4 flex place-items-center after:absolute after:h-[200px] after:w-full sm:after:w-[580px] after:-translate-x-1/2 after:rounded-full after:bg-gradient-radial after:from-transparent after:to-white after:blur-2xl after:content-[''] before:-z-20 before:h-[120px] before:w-full sm:before:w-[220px] before:-translate-x-1/3 before:bg-gradient-conic before:from-blue-200 before:via-sky-200 before:blur-2xl before:content-[''] after:dark:bg-gradient-to-br after:dark:from-transparent before:dark:to-blue-700/10 before:dark:from-sky-900 before:dark:via-[#0141ff]/40 after:lg:h-[360px]">
-        <div className=" dark:drop-shadow-[0_0_0.3rem_#ffffff50] dark:invert"></div>
+            <div className="flex flex-col">
+              <TextField
+                label="Password"
+                type="password"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {passwordErrMessage && (
+                <p className="text-red-500 text-sm">{passwordErrMessage}</p>
+              )}
+            </div>
+          </div>
+          <Button className="w-full bg-slate-500" type="submit">
+            Sign In
+          </Button>
+          <div className="flex gap-3">
+            <Button className="bg-slate-500">Gmail</Button>
+            <Button className="bg-slate-500">Facebook</Button>
+            <Button className="bg-slate-500">
+              <a href="/sign-up">Sign Up</a>
+            </Button>
+          </div>
+        </form>
       </div>
     </main>
   );
