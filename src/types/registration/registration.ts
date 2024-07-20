@@ -4,6 +4,7 @@ export interface SignInPayload {
 }
 
 export interface SignUpPayload {
+  name: string;
   email: string;
   password: string;
   retypePassword: string;

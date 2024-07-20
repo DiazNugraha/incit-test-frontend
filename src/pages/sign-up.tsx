@@ -4,13 +4,23 @@ import { SignUpPayload } from "@/types/registration/registration";
 import { useState } from "react";
 
 export default function SignUpPage() {
+  const [name, setName] = useState<string>();
   const [email, setEmail] = useState<string>();
   const [password, setPassword] = useState<string>();
   const [retypePassword, setRetypePassword] = useState<string>();
+  const [nameErrMessage, setNameErrMessage] = useState<string>();
   const [emailErrMessage, setEmailErrMessage] = useState<string>();
   const [passwordErrMessage, setPasswordErrMessage] = useState<string>();
   const [retypePasswordErrMessage, setRetypePasswordErrMessage] =
     useState<string>();
+
+  const checkName = () => {
+    if (!name) {
+      setNameErrMessage("Name is required");
+      return;
+    }
+    setNameErrMessage("");
+  };
 
   const checkEmail = () => {
     if (!email) {
@@ -83,11 +93,13 @@ export default function SignUpPage() {
   };
   const signUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    checkName();
     checkEmail();
     checkPassword();
     checkRetypePassword();
     try {
       const payload: SignUpPayload = {
+        name: String(name),
         email: String(email),
         password: String(password),
         retypePassword: String(retypePassword),
@@ -106,6 +118,16 @@ export default function SignUpPage() {
         <div className="flex justify-center items-center flex-col gap-8 w-[40%]">
           <h1 className="text-4xl">Sign Up</h1>
           <form onSubmit={signUp} className="flex flex-col gap-y-4 w-full">
+            <div className="flex flex-col">
+              <TextField
+                label="Name"
+                type="text"
+                onChange={(e) => setName(e.target.value)}
+              />
+              {nameErrMessage && (
+                <p className="text-red-500 text-sm">{nameErrMessage}</p>
+              )}
+            </div>
             <div className="flex flex-col">
               <TextField
                 label="Email"
