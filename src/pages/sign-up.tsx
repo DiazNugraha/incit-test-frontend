@@ -14,31 +14,33 @@ export default function SignUpPage() {
   const [retypePasswordErrMessage, setRetypePasswordErrMessage] =
     useState<string>();
 
-  const checkName = () => {
+  const checkName = (): boolean => {
     if (!name) {
       setNameErrMessage("Name is required");
-      return;
+      return true;
     }
     setNameErrMessage("");
+    return false;
   };
 
-  const checkEmail = () => {
+  const checkEmail = (): boolean => {
     if (!email) {
       setEmailErrMessage("Email is required");
-      return;
+      return true;
     }
     const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
     if (!emailPattern.test(email)) {
       setEmailErrMessage("Invalid email address");
-      return;
+      return true;
     }
     setEmailErrMessage("");
+    return false;
   };
 
-  const checkPassword = () => {
+  const checkPassword = (): boolean => {
     if (!password) {
       setPasswordErrMessage("Password is required");
-      return;
+      return true;
     }
     const checks = {
       hasLowerCase: /[a-z]/.test(password),
@@ -73,30 +75,43 @@ export default function SignUpPage() {
     for (const error of errors) {
       if (error.check) {
         setPasswordErrMessage(error.message);
-        return;
+        return true;
       }
     }
 
     setPasswordErrMessage("");
+    return false;
   };
 
-  const checkRetypePassword = () => {
+  const checkRetypePassword = (): boolean => {
     if (!retypePassword) {
       setRetypePasswordErrMessage("Retype Password is required");
-      return;
+      return true;
     }
     if (retypePassword !== password) {
       setRetypePasswordErrMessage("Password does not match");
-      return;
+      return true;
     }
     setRetypePasswordErrMessage("");
+    return false;
   };
   const signUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    checkName();
-    checkEmail();
-    checkPassword();
-    checkRetypePassword();
+    let isError = false;
+    for (const check of [
+      checkName,
+      checkEmail,
+      checkPassword,
+      checkRetypePassword,
+    ]) {
+      isError = check();
+      if (isError) {
+        isError = true;
+      }
+    }
+
+    if (isError) return;
+
     try {
       const payload: SignUpPayload = {
         name: String(name),
@@ -104,7 +119,23 @@ export default function SignUpPage() {
         password: String(password),
         retypePassword: String(retypePassword),
       };
-      console.log(payload);
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/sign-up`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (response.ok) {
+        if (confirm("Check your email for verification " + email)) {
+          window.location.href = "/";
+        }
+      }
     } catch (error) {
       console.log(error);
     }

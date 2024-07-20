@@ -1,9 +1,16 @@
 import Button from "@/components/button";
 import TextField from "@/components/text-field";
 import { SignInPayload } from "@/types/registration/registration";
-import { useState } from "react";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { GetServerSideProps } from "next";
 
-export default function Home() {
+interface HomePageProps {
+  isLoggedIn: boolean;
+}
+
+const HomePage: React.FC<HomePageProps> = ({ isLoggedIn }) => {
+  const router = useRouter();
   const [email, setEmail] = useState<string>();
   const [password, setPassword] = useState<string>();
   const [emailErrMessage, setEmailErrMessage] = useState<string>();
@@ -35,8 +42,37 @@ export default function Home() {
       password: String(password),
     };
 
-    console.log(payload);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (response.ok) {
+        window.location.href = "/dashboard";
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  const handleOnOauth = (type: "google" | "facebook") => {
+    if (typeof window !== "undefined") {
+      window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/${type}`;
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn && typeof window !== "undefined") {
+      router.replace("/dashboard");
+    }
+  }, [isLoggedIn]);
 
   return (
     <main
@@ -75,8 +111,18 @@ export default function Home() {
             Sign In
           </Button>
           <div className="flex gap-3">
-            <Button className="bg-slate-500">Gmail</Button>
-            <Button className="bg-slate-500">Facebook</Button>
+            <Button
+              className="bg-slate-500"
+              onClick={() => handleOnOauth("google")}
+            >
+              Gmail
+            </Button>
+            <Button
+              className="bg-slate-500"
+              onClick={() => handleOnOauth("facebook")}
+            >
+              Facebook
+            </Button>
             <Button className="bg-slate-500">
               <a href="/sign-up">Sign Up</a>
             </Button>
@@ -85,4 +131,24 @@ export default function Home() {
       </div>
     </main>
   );
-}
+};
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  try {
+    const refreshToken = req.headers.cookie?.split(";")[0].split("=")[1];
+
+    return {
+      props: {
+        isLoggedIn: !!refreshToken,
+      },
+    };
+  } catch (error) {
+    return {
+      props: {
+        isLoggedIn: false,
+      },
+    };
+  }
+};
+
+export default HomePage;
