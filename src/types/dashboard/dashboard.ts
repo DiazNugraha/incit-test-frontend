@@ -14,3 +14,8 @@ export interface Statistic {
   activeUserCount: number;
   averageActiveUserCount: string;
 }
+
+export interface Identity {
+  name: string;
+  email: string;
+}

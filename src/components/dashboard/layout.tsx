@@ -1,12 +1,14 @@
 import { useRouter } from "next/router";
 import Navbar from "./navbar";
 import React from "react";
+import { Identity } from "@/types/dashboard/dashboard";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
+  identity?: Identity;
 }
 
-const Layout: React.FC<DashboardLayoutProps> = ({ children }) => {
+const Layout: React.FC<DashboardLayoutProps> = ({ children, identity }) => {
   const router = useRouter();
   const handleLogout = async () => {
     try {
@@ -33,7 +35,7 @@ const Layout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <div className="flex w-full justify-center">
           <h1 className="text-2xl">Dashboard</h1>
         </div>
-        <Navbar onLogout={handleLogout} />
+        <Navbar onLogout={handleLogout} identity={identity} />
         <hr className="w-full" />
         {children}
       </div>
