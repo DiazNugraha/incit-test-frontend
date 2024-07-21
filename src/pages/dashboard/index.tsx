@@ -1,21 +1,8 @@
 import Layout from "@/components/dashboard/layout";
-import { GetServerSideProps } from "next";
-import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import withAuth, { getServerSidePropsWithAuth } from "@/hoc/withAuth";
+import React from "react";
 
-interface DashboardPageProps {
-  isLoggedIn: boolean;
-}
-
-const DashboardPage: React.FC<DashboardPageProps> = ({ isLoggedIn }) => {
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoggedIn && typeof window !== "undefined") {
-      router.replace("/");
-    }
-  }, [isLoggedIn]);
-
+const DashboardPage: React.FC = () => {
   return (
     <Layout>
       <div>dashboard</div>
@@ -23,22 +10,5 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ isLoggedIn }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  try {
-    const refreshToken = req.headers.cookie?.split(";")[0].split("=")[1];
-
-    return {
-      props: {
-        isLoggedIn: !!refreshToken,
-      },
-    };
-  } catch (error) {
-    return {
-      props: {
-        isLoggedIn: false,
-      },
-    };
-  }
-};
-
-export default DashboardPage;
+export const getServerSideProps = getServerSidePropsWithAuth;
+export default withAuth(DashboardPage);

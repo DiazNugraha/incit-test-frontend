@@ -1,9 +1,12 @@
 import { useRouter } from "next/router";
 import Navbar from "./navbar";
+import React from "react";
 
-export default function Layout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+}
+
+const Layout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const router = useRouter();
   const handleLogout = async () => {
     try {
@@ -36,4 +39,6 @@ export default function Layout({
       </div>
     </main>
   );
-}
+};
+
+export default Layout;
